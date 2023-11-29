@@ -1,0 +1,74 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Answer {
+  answerIdPk: ID!
+  number: Float!
+  question: Question!
+}
+
+input CreateAnswerInput {
+  number: Int!
+  questionIdFk: ID!
+}
+
+input CreateOptionInput {
+  content: String!
+  number: Int!
+  questionIdFk: ID!
+  score: Int!
+}
+
+input CreateQuestionInput {
+  number: Int!
+  surveyIdFk: ID!
+  title: String!
+}
+
+type Mutation {
+  createAnswer(createAnswerInput: CreateAnswerInput!): Answer!
+  createOption(createOptionInput: CreateOptionInput!): Option!
+  createQuestion(createQuestionInput: CreateQuestionInput!): Question!
+  createSurvey(createSurveyInput: createSurveyInput!): Survey!
+}
+
+type Option {
+  content: String!
+  number: Float!
+  optionIdPk: ID!
+  question: Question!
+  score: Float!
+}
+
+type Query {
+  Question: [Option!]!
+  getAnswer(answerIdPk: String!, questionIdFk: String!): Answer!
+  getOption(optionIdPk: String!, questionIdFk: String!): Option!
+  getQuestion(questionIdPk: String!, surveyIdFk: String!): Question!
+  getSurvey(surveyIdPk: String!): Survey!
+  survey: [Survey!]!
+}
+
+type Question {
+  answers: [Answer!]!
+  number: Float!
+  options: [Option!]!
+  questionIdPk: ID!
+  survey: Survey!
+  title: String!
+}
+
+type Survey {
+  content: String!
+  name: String!
+  questions: [Question!]!
+  state: String!
+  surveyIdPk: ID!
+}
+
+input createSurveyInput {
+  content: String!
+  name: String!
+  state: String!
+}
