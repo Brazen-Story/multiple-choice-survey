@@ -48,6 +48,15 @@ export class AnswerService {
       });
     }
 
+    async remove(answerIdPk: string): Promise<void> {
+      const answer = await this.answerReposiory.findOne({ where: { answerIdPk } });
+      if (answer) {
+        await this.answerReposiory.remove(answer);
+      } else {
+        throw new Error('응답을 찾을 수 없습니다 !');
+      }
+    }
+
     getQuestion(questionId: string): Promise<Question> {
       return this.questionsService.findone(questionId);
     }

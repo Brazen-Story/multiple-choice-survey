@@ -26,4 +26,16 @@ export class OptionResolver {
     return this.optionService.findAll();
   }
 
+  @Mutation(returns => Boolean)
+  async removeOption(
+    @Args('optionIdPk') optionIdPk: string
+  ): Promise<boolean> {
+    try {
+      await this.optionService.remove(optionIdPk);
+      return true;
+    } catch (e) {
+      // 에러 핸들링 로직, 예를 들어 GraphQL 에러를 throw 할 수 있습니다.
+      throw new Error('선택지를 찾을 수 없습니다 !');
+    }
+  }
 }

@@ -48,6 +48,17 @@ export class QuestionsService {
     });
   }
 
+  async remove(questionIdPk: string): Promise<void> {
+    const question = await this.questionRepository.findOne({ where: { questionIdPk } });
+    if (question) {
+      await this.questionRepository.remove(question);
+    } else {
+      throw new Error('질문을 찾을 수 없습니다 !');
+    }
+  }
+
+  
+
   getSurvey(surveyId: string): Promise<Survey> {
     return this.surveyService.findone(surveyId)
   }

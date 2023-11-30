@@ -31,6 +31,11 @@ type Mutation {
   createOption(createOptionInput: CreateOptionInput!): Option!
   createQuestion(createQuestionInput: CreateQuestionInput!): Question!
   createSurvey(createSurveyInput: createSurveyInput!): Survey!
+  removeAnswer(answerIdPk: String!): Boolean!
+  removeOption(optionIdPk: String!): Boolean!
+  removeQuestion(questionIdPk: String!): Boolean!
+  removeSurvey(surveyIdPk: String!): Boolean!
+  updateSurvey(surveyIdPk: String!, updateData: UpdateSurveyInput!): Survey!
 }
 
 type Option {
@@ -45,7 +50,7 @@ type Query {
   Question: [Option!]!
   getAnswer(answerIdPk: String!, questionIdFk: String!): Answer!
   getOption(optionIdPk: String!, questionIdFk: String!): Option!
-  getQuestion(questionIdPk: String!, surveyIdFk: String!): Question!
+  getQuestion(questionIdPk: String!, surveyIdFk: String): Question!
   getSurvey(surveyIdPk: String!): Survey!
   survey: [Survey!]!
 }
@@ -65,6 +70,12 @@ type Survey {
   questions: [Question!]!
   state: String!
   surveyIdPk: ID!
+}
+
+input UpdateSurveyInput {
+  content: String!
+  name: String!
+  state: String!
 }
 
 input createSurveyInput {

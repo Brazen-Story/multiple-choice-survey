@@ -24,11 +24,17 @@ export class Question {
   @Field()
   title: string;
 
-  @OneToMany(() => Option, option => option.question)
+  @OneToMany(() => Option, option => option.question, { 
+    cascade: ['insert', 'update', 'remove'],
+    onDelete: 'CASCADE'
+   })
   @Field(() => [Option])
   options: Option[];
 
-  @OneToMany(() => Answer, anaswer => anaswer.question)
+  @OneToMany(() => Answer, answer => answer.question, { 
+    cascade: ['insert', 'update', 'remove'],
+    onDelete: 'CASCADE'
+   })
   @Field(() => [Answer])
   answers: Answer[];
 }

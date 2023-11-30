@@ -19,10 +19,24 @@ export class AnswerResolver {
   ): Promise<Answer> {
     return this.answerService.findone(answerIdPk, questionIdFk);
   }
+
   //모든 답변들 가져오기
   @Query(returns => [Answer])
   Question(): Promise<Answer[]> {
     return this.answerService.findAll();
+  }
+
+  @Mutation(returns => Boolean)
+  async removeAnswer(
+    @Args('answerIdPk') answerIdPk: string
+  ): Promise<boolean> {
+    try {
+      await this.answerService.remove(answerIdPk);
+      return true;
+    } catch (e) {
+      // 에러 핸들링 로직, 예를 들어 GraphQL 에러를 throw 할 수 있습니다.
+      throw new Error('응답을 찾을 수 없습니다 !');
+    }
   }
 
 }

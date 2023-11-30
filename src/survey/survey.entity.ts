@@ -21,8 +21,7 @@ export class Survey {
   @Field()
   state: string;
 
-  @OneToMany(() => Question, question => question.survey)
+  @OneToMany(() => Question, question => question.survey, { onDelete: 'CASCADE' })
   @Field(() => [Question])
   questions: Question[];
-
 }

@@ -47,6 +47,15 @@ export class OptionService {
       });
     }
 
+    async remove(optionIdPk: string): Promise<void> {
+      const option = await this.optionRepository.findOne({ where: { optionIdPk } });
+      if (option) {
+        await this.optionRepository.remove(option);
+      } else {
+        throw new Error('선택지를 찾을 수 없습니다 !');
+      }
+    }
+
     getQuestion(questionId: string): Promise<Question> {
       return this.questionsService.findone(questionId);
     }

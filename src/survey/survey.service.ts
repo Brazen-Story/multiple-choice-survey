@@ -3,6 +3,7 @@ import { Survey } from './survey.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createSurveyInput } from './dto/create-survey.input';
+import { UpdateAnswerInput } from 'src/answer/dto/update-answer.input';
 
 @Injectable()
 export class SurveyService {
@@ -23,4 +24,22 @@ export class SurveyService {
     findone(surveyIdPk: string): Promise<Survey> {
         return this.surveyRepository.findOneOrFail({ where: { surveyIdPk } });
     }
+
+    async remove(surveyIdPk: string): Promise<void> {
+        const survey = await this.surveyRepository.findOne({ where: { surveyIdPk } });
+        if (survey) {
+          await this.surveyRepository.remove(survey);
+        } else {
+          throw new Error('선택지를 찾을 수 없습니다 !');
+        }
+      }
+
+      async updateSurvey(surveyIdPk: string, UpdateSurveyInput: Partial<Survey>): Promise<Survey> {
+        await this.surveyRepository.update(surveyIdPk, UpdateSurveyInput);
+        const updatedSurvey = await this.surveyRepository.findOne({ where: { surveyIdPk: surveyIdPk } });
+        if (!updatedSurvey) {
+          throw new Error('Survey not found');
+        }
+        return updatedSurvey;
+      }
 }
