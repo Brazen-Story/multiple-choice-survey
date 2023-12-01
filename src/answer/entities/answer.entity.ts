@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "t
 @Entity('ANSWER_TB')
 @ObjectType()
 export class Answer {
-  @PrimaryGeneratedColumn('uuid') //선택지 아이디
+  @PrimaryGeneratedColumn('uuid', { name: 'ANSWER_ID_PK' }) //응답 아이디
   @Field(() => ID)
   answerIdPk: string; 
 
@@ -14,7 +14,7 @@ export class Answer {
   @Field(() => Question)
   question: Question;
 
-  @Column() //사용자 응답 번호
+  @Column({ name: 'ANSWER_NUMBER' }) //사용자 응답 번호
   @Field()
   number: number;
 

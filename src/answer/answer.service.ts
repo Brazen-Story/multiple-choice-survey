@@ -61,4 +61,13 @@ export class AnswerService {
       return this.questionsService.findone(questionId);
     }
 
+    async updateAnswer(answerIdPk: string, UpdateAnswerInput: Partial<Answer>): Promise<Answer> {
+      await this.answerReposiory.update(answerIdPk, UpdateAnswerInput);
+      const updateAnswer = await this.answerReposiory.findOne({ where: { answerIdPk: answerIdPk } });
+      if (!updateAnswer) {
+        throw new Error('Survey not found');
+      }
+      return updateAnswer;
+    }
+
 }

@@ -26,15 +26,24 @@ input CreateQuestionInput {
   title: String!
 }
 
+input CreateSurveyInput {
+  content: String!
+  name: String!
+}
+
 type Mutation {
+  completeSurvey(surveyIdPk: String!): Survey!
   createAnswer(createAnswerInput: CreateAnswerInput!): Answer!
   createOption(createOptionInput: CreateOptionInput!): Option!
   createQuestion(createQuestionInput: CreateQuestionInput!): Question!
-  createSurvey(createSurveyInput: createSurveyInput!): Survey!
+  createSurvey(CreateSurveyInput: CreateSurveyInput!): Survey!
   removeAnswer(answerIdPk: String!): Boolean!
   removeOption(optionIdPk: String!): Boolean!
   removeQuestion(questionIdPk: String!): Boolean!
   removeSurvey(surveyIdPk: String!): Boolean!
+  updateAnswer(answerIdPk: String!, updateData: UpdateAnswerInput!): Answer!
+  updateOption(optionIdPk: String!, updateData: UpdateOptionInput!): Option!
+  updateQuestion(questionIdPk: String!, updateData: UpdateQuestionInput!): Question!
   updateSurvey(surveyIdPk: String!, updateData: UpdateSurveyInput!): Survey!
 }
 
@@ -47,12 +56,15 @@ type Option {
 }
 
 type Query {
-  Question: [Option!]!
+  Answer: [Answer!]!
+  Option: [Option!]!
+  Question: [Question!]!
+  Survey: [Survey!]!
   getAnswer(answerIdPk: String!, questionIdFk: String!): Answer!
+  getCompletedSurveys: [Survey!]!
   getOption(optionIdPk: String!, questionIdFk: String!): Option!
   getQuestion(questionIdPk: String!, surveyIdFk: String): Question!
   getSurvey(surveyIdPk: String!): Survey!
-  survey: [Survey!]!
 }
 
 type Question {
@@ -70,16 +82,29 @@ type Survey {
   questions: [Question!]!
   state: String!
   surveyIdPk: ID!
+  totalScore: Float
+}
+
+input UpdateAnswerInput {
+  number: Int
+  questionIdFk: ID
+}
+
+input UpdateOptionInput {
+  content: String
+  number: Int
+  questionIdFk: ID
+  score: Int
+}
+
+input UpdateQuestionInput {
+  number: Int
+  surveyIdFk: ID
+  title: String
 }
 
 input UpdateSurveyInput {
-  content: String!
-  name: String!
-  state: String!
-}
-
-input createSurveyInput {
-  content: String!
-  name: String!
-  state: String!
+  content: String
+  name: String
+  state: String
 }

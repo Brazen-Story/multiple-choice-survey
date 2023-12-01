@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { AnswerService } from './answer.service';
 import { Answer } from './entities/answer.entity';
 import { CreateAnswerInput } from './dto/create-answer.input';
+import { UpdateAnswerInput } from './dto/update-answer.input';
 
 @Resolver(() => Answer)
 export class AnswerResolver {
@@ -22,7 +23,7 @@ export class AnswerResolver {
 
   //모든 답변들 가져오기
   @Query(returns => [Answer])
-  Question(): Promise<Answer[]> {
+  Answer(): Promise<Answer[]> {
     return this.answerService.findAll();
   }
 
@@ -39,4 +40,11 @@ export class AnswerResolver {
     }
   }
 
+  @Mutation(() => Answer)
+  async updateAnswer(
+    @Args('answerIdPk', { type: () => String }) answerIdPk: string,
+    @Args('updateData') UpdateAnswerInput: UpdateAnswerInput,
+  ): Promise<Answer> {
+    return this.answerService.updateAnswer(answerIdPk, UpdateAnswerInput);
+  }
 }

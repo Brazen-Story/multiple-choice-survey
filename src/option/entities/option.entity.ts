@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "t
 @Entity('OPTION_TB')
 @ObjectType()
 export class Option {
-  @PrimaryGeneratedColumn('uuid') //선택지 아이디
+  @PrimaryGeneratedColumn('uuid', { name: 'SURVEY_ID_PK' }) //선택지 아이디
   @Field(() => ID)
   optionIdPk: string; 
 
@@ -14,15 +14,15 @@ export class Option {
   @Field(() => Question)
   question: Question;
 
-  @Column() //선택지 번호
+  @Column({ name: 'OPTION_NUMBER'}) //선택지 번호
   @Field()
   number: number;
 
-  @Column() //선택지 내용
+  @Column({ name: 'CONTENT'}) //선택지 내용
   @Field()
   content: string;
 
-  @Column() //선택지에 대한 점수
+  @Column({ name: 'SCORE' }) //선택지에 대한 점수
   @Field()
   score: number;
 }

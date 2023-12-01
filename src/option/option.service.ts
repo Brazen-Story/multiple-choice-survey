@@ -56,6 +56,15 @@ export class OptionService {
       }
     }
 
+    async updateOption(optionIdPk: string, UpdateOptionInput: Partial<Option>): Promise<Option> {
+      await this.optionRepository.update(optionIdPk, UpdateOptionInput);
+      const updateOption = await this.optionRepository.findOne({ where: { optionIdPk: optionIdPk } });
+      if (!updateOption) {
+        throw new Error('Option not found');
+      }
+      return updateOption;
+    }
+
     getQuestion(questionId: string): Promise<Question> {
       return this.questionsService.findone(questionId);
     }

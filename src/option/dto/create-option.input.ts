@@ -21,5 +21,5 @@ export class CreateOptionInput {
   @Field(() => Int)
   @IsInt()
   @IsNotEmpty()
-  score: number; // 질문 번호
+  score: number; // 질문 점수
 }

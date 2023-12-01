@@ -57,7 +57,14 @@ export class QuestionsService {
     }
   }
 
-  
+  async updateQuestion(questionIdPk: string, UpdateQuestionInput: Partial<Question>): Promise<Question> {
+    await this.questionRepository.update(questionIdPk, UpdateQuestionInput);
+    const updateQuestion = await this.questionRepository.findOne({ where: { questionIdPk: questionIdPk }});
+    if(!updateQuestion) {
+      throw new Error('Question not found');
+    }
+    return updateQuestion;
+  }
 
   getSurvey(surveyId: string): Promise<Survey> {
     return this.surveyService.findone(surveyId)

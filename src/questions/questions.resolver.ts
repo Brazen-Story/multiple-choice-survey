@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args, ID, ResolveField, Parent } from '@nest
 import { QuestionsService } from './questions.service';
 import { Question } from './entities/question.entity';
 import { CreateQuestionInput } from './dto/create-question.input';
+import { UpdateQuestionInput } from './dto/update-question.input';
 
 @Resolver(of => Question)
 export class QuestionsResolver {
@@ -42,5 +43,13 @@ export class QuestionsResolver {
       // 
       throw new Error('질문을 찾을 수 없습니다 !');
     }
+  }
+
+  @Mutation(() => Question)
+  async updateQuestion(
+    @Args('questionIdPk', { type: () => String}) questionIdPk: string,
+    @Args('updateData') UpdateQuestionInput: UpdateQuestionInput,
+  ): Promise<Question> {
+    return this.questionsService.updateQuestion(questionIdPk, UpdateQuestionInput)
   }
 }

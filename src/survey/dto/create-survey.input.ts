@@ -1,13 +1,16 @@
 import { Field, InputType } from "@nestjs/graphql";
+import { IsNotEmpty, IsString } from "class-validator";
 
 @InputType()
-export class createSurveyInput {
+export class CreateSurveyInput {
     @Field()
-    name: string;
+    @IsString()
+    @IsNotEmpty()
+    name: string; //설문지 이름
 
     @Field()
-    content: string;
+    @IsString()
+    @IsNotEmpty()
+    content: string; //설문 내용
 
-    @Field()
-    state: string;
 }

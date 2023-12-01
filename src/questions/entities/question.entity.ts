@@ -7,34 +7,30 @@ import { Answer } from 'src/answer/entities/answer.entity';
 @Entity('QUESTION_TB')
 @ObjectType()
 export class Question {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', {name: 'QUESTION_ID_PK'}) //문항 아이디
   @Field(() => ID)
   questionIdPk: string;
 
+  @ManyToOne(() => Survey, survey => survey.questions) // 설문지 아이디
   @Field(() => Survey)
-  @ManyToOne(() => Survey, survey => survey.questions)
   @JoinColumn({ name: 'SURVEY_ID_FK' })
   survey: Survey;
 
-  @Column()
+  @Column({ name: 'NUMBER'}) //문항 번호
   @Field()
   number: number;
 
-  @Column()
+  @Column({ name: 'TITLE'}) //문항 제목
   @Field()
   title: string;
 
-  @OneToMany(() => Option, option => option.question, { 
-    cascade: ['insert', 'update', 'remove'],
-    onDelete: 'CASCADE'
-   })
+  //option테이블과 1:N 
+  @OneToMany(() => Option, option => option.question)
   @Field(() => [Option])
   options: Option[];
 
-  @OneToMany(() => Answer, answer => answer.question, { 
-    cascade: ['insert', 'update', 'remove'],
-    onDelete: 'CASCADE'
-   })
+  //answer테이블과 1:N
+  @OneToMany(() => Answer, answer => answer.question)
   @Field(() => [Answer])
   answers: Answer[];
 }
