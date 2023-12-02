@@ -6,6 +6,7 @@ import { CreateSurveyInput } from './dto/create-survey.input';
 import { Question } from 'src/questions/entities/question.entity';
 import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { ERROR_CODES, ERROR_MESSAGES } from '../errors/errors.constants';
+import { LoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class SurveyService {
@@ -16,16 +17,19 @@ export class SurveyService {
     private surveyRepository: Repository<Survey>,
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
-    // 필요한 경우 다른 리포지토리를 주입
+    private logger: LoggerService
   ) { }
 
   //설문지 만들기
   createSurvey(CreateSurveyInput: CreateSurveyInput): Promise<Survey> {
-    const newSurvey = this.surveyRepository.create(CreateSurveyInput);
-
     try {
+      const newSurvey = this.surveyRepository.create(CreateSurveyInput);
+
+      this.logger.logVerbose('Create', `새로운 설문지를 생성하였습니다.`, SurveyService.name);
       return this.surveyRepository.save(newSurvey);
     } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.GENERAL_ERROR, error.stack);
+
       throw new InternalServerErrorException({
         error: ERROR_CODES.INVALID_INPUT,
         message: ERROR_MESSAGES.INVALID_INPUT
@@ -37,8 +41,12 @@ export class SurveyService {
   async findAll(): Promise<Survey[]> {
     try {
       const survery = await this.surveyRepository.find();
+
+      this.logger.logVerbose('Read', `모든 설문지 목록을 찾았습니다.`, SurveyService.name);
       return survery;
     } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.SURVEY_NOT_FOUND, error.stack);
+
       throw new NotFoundException({
         error: ERROR_CODES.SURVEY_NOT_FOUND,
         message: ERROR_MESSAGES.SURVEY_NOT_FOUND
@@ -50,8 +58,12 @@ export class SurveyService {
   async findone(surveyIdPk: string): Promise<Survey> {
     try {
       const survey = await this.surveyRepository.findOneOrFail({ where: { surveyIdPk } });
+
+      this.logger.logVerbose('Read', `${surveyIdPk} 설문지를 찾았습니다.`, SurveyService.name);
       return survey;
     } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.SURVEY_NOT_FOUND, error.stack);
+
       throw new NotFoundException({
         error: ERROR_CODES.SURVEY_NOT_FOUND,
         message: ERROR_MESSAGES.SURVEY_NOT_FOUND
@@ -66,11 +78,15 @@ export class SurveyService {
         where: { state: '완료' },
         relations: ['questions', 'questions.options', 'questions.answers']
       });
+
+      this.logger.logVerbose('Read', `완성된 설문지 목록을 찾았습니다.`, SurveyService.name);
       return surveys.map(survey => {
         survey.totalScore = this.calculateSurveyTotalScore(survey);
         return survey;
       });
     } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.GENERAL_ERROR, error.stack);
+
       throw new InternalServerErrorException({
         error: ERROR_CODES.GENERAL_ERROR,
         message: ERROR_MESSAGES.GENERAL_ERROR
@@ -94,11 +110,14 @@ export class SurveyService {
 
   // id와 일치하는 설문지 업데이트
   async updateSurvey(surveyIdPk: string, UpdateSurveyInput: Partial<Survey>): Promise<Survey> {
-    try{
-      const updateResult = await this.surveyRepository.update(surveyIdPk, UpdateSurveyInput);
-      return this.findone(surveyIdPk);
+    try {
+      await this.surveyRepository.update(surveyIdPk, UpdateSurveyInput);
 
-    }catch (error) {
+      this.logger.logVerbose('Update', `${surveyIdPk} 설문지를 업데이트 했습니다.`, SurveyService.name);
+      return this.findone(surveyIdPk);
+    } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.SURVEY_NOT_FOUND, error.stack);
+
       throw new NotFoundException({
         error: ERROR_CODES.SURVEY_NOT_FOUND,
         message: ERROR_MESSAGES.SURVEY_NOT_FOUND
@@ -108,10 +127,14 @@ export class SurveyService {
 
   // id와 일치하는 설문지 제거
   async remove(surveyIdPk: string): Promise<void> {
-    try{
+    try {
       const survey = await this.surveyRepository.findOne({ where: { surveyIdPk } });
+
+      this.logger.logVerbose('Delete', `${surveyIdPk} 설문지를 제거 했습니다.`, SurveyService.name);
       await this.surveyRepository.remove(survey);
-    }catch (error) {
+    } catch (error) {
+      this.logger.logError(LoggerService.name, ERROR_CODES.SURVEY_NOT_FOUND, error.stack);
+
       throw new NotFoundException({
         error: ERROR_CODES.SURVEY_NOT_FOUND,
         message: ERROR_MESSAGES.SURVEY_NOT_FOUND
@@ -146,16 +169,15 @@ export class SurveyService {
         await this.surveyRepository.update(surveyIdPk, { state: '완료' });
       }
 
+      this.logger.logVerbose('Update', `${surveyIdPk}가 완료되었습니다.`, SurveyService.name);
       return survey;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      this.logger.logError(LoggerService.name, ERROR_CODES.GENERAL_ERROR, error.stack);
+
       throw new InternalServerErrorException({
         error: ERROR_CODES.GENERAL_ERROR,
         message: ERROR_MESSAGES.GENERAL_ERROR
       });
     }
   }
-
 }

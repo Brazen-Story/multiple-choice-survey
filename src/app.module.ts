@@ -27,6 +27,6 @@ import { OptionModule } from './option/option.module';
   SurveyModule,
   QuestionsModule,
   AnswerModule,
-  OptionModule],
+  OptionModule,],
 })
 export class AppModule {}
