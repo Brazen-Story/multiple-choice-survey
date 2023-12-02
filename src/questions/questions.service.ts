@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateQuestionInput } from './dto/create-question.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity';
-import { Survey } from 'src/survey/survey.entity';
+import { Survey } from 'src/survey/entities/survey.entity';
 import { Repository } from 'typeorm';
 import { SurveyService } from 'src/survey/survey.service';
 import { NotFoundException, InternalServerErrorException } from '@nestjs/common';

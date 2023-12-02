@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Survey } from './survey.entity';
+import { Survey } from './entities/survey.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSurveyInput } from './dto/create-survey.input';

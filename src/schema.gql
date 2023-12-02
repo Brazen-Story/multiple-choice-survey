@@ -4,7 +4,7 @@
 
 type Answer {
   answerIdPk: ID!
-  number: Float!
+  number: Int!
   question: Question!
 }
 
@@ -49,10 +49,10 @@ type Mutation {
 
 type Option {
   content: String!
-  number: Float!
+  number: Int!
   optionIdPk: ID!
   question: Question!
-  score: Float!
+  score: Int!
 }
 
 type Query {
@@ -69,7 +69,7 @@ type Query {
 
 type Question {
   answers: [Answer!]!
-  number: Float!
+  number: Int!
   options: [Option!]!
   questionIdPk: ID!
   survey: Survey!
@@ -82,7 +82,7 @@ type Survey {
   questions: [Question!]!
   state: String!
   surveyIdPk: ID!
-  totalScore: Float
+  totalScore: Int
 }
 
 input UpdateAnswerInput {

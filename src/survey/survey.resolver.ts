@@ -1,5 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Survey } from './survey.entity';
+import { Survey } from './entities/survey.entity';
 import { SurveyService } from './survey.service';
 import { CreateSurveyInput } from './dto/create-survey.input';
 import { UpdateSurveyInput } from './dto/update-surveyinput';

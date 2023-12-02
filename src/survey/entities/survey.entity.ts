@@ -1,5 +1,5 @@
-import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, OneToMany } from "typeorm";
+import { Field, ObjectType, ID, Int } from '@nestjs/graphql';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Question } from 'src/questions/entities/question.entity';
 
 @Entity('SURVEY_TB')
@@ -30,7 +30,6 @@ export class Survey {
   @Field(() => [Question])
   questions: Question[];
 
-  // Add this field
-  @Field({ nullable: true }) // Not stored in the database, so it's nullable
+  @Field(type=> Int, { nullable: true })
   totalScore?: number;
 }

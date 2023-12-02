@@ -1,4 +1,4 @@
-import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { Field, ObjectType, ID, Int } from '@nestjs/graphql';
 import { Question } from 'src/questions/entities/question.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 
@@ -14,8 +14,8 @@ export class Answer {
   @Field(() => Question)
   question: Question;
 
-  @Column({ name: 'ANSWER_NUMBER' }) //사용자 응답 번호
-  @Field()
+  @Column('int', { name: 'ANSWER_NUMBER' }) //사용자 응답 번호
+  @Field(type => Int)
   number: number;
 
 }
