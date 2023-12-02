@@ -6,68 +6,106 @@ import { QuestionsService } from 'src/questions/questions.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from 'src/questions/entities/question.entity';
+import { ERROR_CODES, ERROR_MESSAGES } from 'src/errors/errors.constants';
+import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class AnswerService {
-  constructor(@InjectRepository(Answer) private answerReposiory: Repository<Answer>,
+  constructor(@InjectRepository(Answer) private answerRepository: Repository<Answer>,
     private questionsService: QuestionsService) { }
 
-    async createAnswer(createAnswerInput: CreateAnswerInput): Promise<Answer> {
+  //응답 만들기
+  async createAnswer(createAnswerInput: CreateAnswerInput): Promise<Answer> {
+    try {
       const question = await this.getQuestion(createAnswerInput.questionIdFk);
       if (!question) {
-        throw new Error('Survey not found');
+        throw new NotFoundException({
+          error: ERROR_CODES.QUESTION_NOT_FOUND,
+          message: ERROR_MESSAGES.QUESTION_NOT_FOUND
+        });
       }
-    
-      const newAnswer = this.answerReposiory.create({
+
+      const newAnswer = this.answerRepository.create({
         ...createAnswerInput,
         question: question
       });
-    
-      return this.answerReposiory.save(newAnswer);
-    }
 
-    async findone(answerIdPk: string, questionIdFk?: string): Promise<Answer> {
-      const whereCondition = questionIdFk ? 
-        {
-          answerIdPk: answerIdPk,
-          question: { questionIdPk: questionIdFk }
-        } : 
-        {
-          answerIdPk: answerIdPk
-        };
-  
-      return this.answerReposiory.findOneOrFail({
+      return this.answerRepository.save(newAnswer);
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: ERROR_CODES.GENERAL_ERROR,
+        message: ERROR_MESSAGES.GENERAL_ERROR
+      });
+    }
+  }
+
+  //모든 응답 엔티티 찾기
+  async findAll(): Promise<Answer[]> {
+    try {
+      return await this.answerRepository.find({ relations: ['question'] });
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: ERROR_CODES.GENERAL_ERROR,
+        message: ERROR_MESSAGES.GENERAL_ERROR
+      });
+    }
+  }
+
+  //id 일치하는 응답 엔티티 찾기
+  async findone(answerIdPk: string, questionIdFk?: string): Promise<Answer> {
+    try {
+      const whereCondition = questionIdFk ?
+        { answerIdPk, question: { questionIdPk: questionIdFk } } :
+        { answerIdPk };
+
+      return await this.answerRepository.findOneOrFail({
         where: whereCondition,
         relations: ['question'],
       });
-    }
-
-    async findAll(): Promise<Answer[]> {
-      return this.answerReposiory.find({
-        relations: ['question'], 
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.ANSWER_NOT_FOUND,
+        message: ERROR_MESSAGES.ANSWER_NOT_FOUND
       });
     }
+  }
 
-    async remove(answerIdPk: string): Promise<void> {
-      const answer = await this.answerReposiory.findOne({ where: { answerIdPk } });
-      if (answer) {
-        await this.answerReposiory.remove(answer);
-      } else {
-        throw new Error('응답을 찾을 수 없습니다 !');
-      }
+  //id 일치하는 응답 업데이트
+  async updateAnswer(answerIdPk: string, UpdateAnswerInput: Partial<Answer>): Promise<Answer> {
+    try {
+      await this.answerRepository.update(answerIdPk, UpdateAnswerInput);
+      const updatedAnswer = await this.answerRepository.findOne({ where: { answerIdPk } });
+
+      return updatedAnswer;
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.ANSWER_NOT_FOUND,
+        message: ERROR_MESSAGES.ANSWER_NOT_FOUND
+      });
     }
+  }
 
-    getQuestion(questionId: string): Promise<Question> {
+  //id 일치하는 응답 삭제
+  async remove(answerIdPk: string): Promise<void> {
+    try {
+      const answer = await this.answerRepository.findOne({ where: { answerIdPk } });
+      await this.answerRepository.remove(answer);
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.ANSWER_NOT_FOUND,
+        message: ERROR_MESSAGES.ANSWER_NOT_FOUND
+      });
+    }
+  }
+
+  getQuestion(questionId: string): Promise<Question> {
+    try {
       return this.questionsService.findone(questionId);
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.QUESTION_NOT_FOUND,
+        message: ERROR_MESSAGES.QUESTION_NOT_FOUND
+      })
     }
-
-    async updateAnswer(answerIdPk: string, UpdateAnswerInput: Partial<Answer>): Promise<Answer> {
-      await this.answerReposiory.update(answerIdPk, UpdateAnswerInput);
-      const updateAnswer = await this.answerReposiory.findOne({ where: { answerIdPk: answerIdPk } });
-      if (!updateAnswer) {
-        throw new Error('Survey not found');
-      }
-      return updateAnswer;
-    }
-
+  }
 }

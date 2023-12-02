@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { SurveyModule } from './survey/survey.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
@@ -30,7 +28,5 @@ import { OptionModule } from './option/option.module';
   QuestionsModule,
   AnswerModule,
   OptionModule],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

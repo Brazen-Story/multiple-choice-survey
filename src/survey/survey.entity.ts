@@ -21,7 +21,7 @@ export class Survey {
     type: 'varchar',
     length: 9,
     name: 'STATE',
-    default: '미완성'
+    default: '미완료'
   }) //설문지 상태
   @Field()
   state: string;

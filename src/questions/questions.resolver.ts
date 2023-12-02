@@ -10,10 +10,12 @@ export class QuestionsResolver {
 
   //질문 만들기
   @Mutation(returns => Question)
-  createQuestion(
-    @Args('createQuestionInput') createQuestionInput: CreateQuestionInput
-  ): Promise<Question> {
-    return this.questionsService.createQuestion(createQuestionInput);
+  createQuestion(@Args('createQuestionInput') createQuestionInput: CreateQuestionInput): Promise<Question> {
+    try {
+      return this.questionsService.createQuestion(createQuestionInput);
+    } catch (error) {
+      throw error;
+    }
   }
 
   //보고 싶은 질문 가져오기
@@ -22,34 +24,44 @@ export class QuestionsResolver {
     @Args('questionIdPk') questionIdPk: string,
     @Args('surveyIdFk', { nullable: true }) surveyIdFk?: string
   ): Promise<Question> {
-    return this.questionsService.findone(questionIdPk, surveyIdFk);
+    try {
+      return this.questionsService.findone(questionIdPk, surveyIdFk);
+    } catch (error) {
+      throw error;
+    }
   }
 
   //모든 질문들 가져오기
   @Query(returns => [Question])
   Question(): Promise<Question[]> {
-    return this.questionsService.findAll();
-  }
-
-  @Mutation(returns => Boolean)
-  async removeQuestion(
-    @Args('questionIdPk') questionIdPk: string
-  ): Promise<boolean> {
     try {
-      await this.questionsService.remove(questionIdPk);
-      return true;
-    } catch (e) {
-      // 에러 핸들링 로직, 예를 들어 GraphQL 에러를 throw 할 수 있습니다.
-      // 
-      throw new Error('질문을 찾을 수 없습니다 !');
+      return this.questionsService.findAll();
+    } catch (error) {
+      throw error;
     }
   }
 
+  //id와 일치하는 문항 업데이트
   @Mutation(() => Question)
   async updateQuestion(
-    @Args('questionIdPk', { type: () => String}) questionIdPk: string,
+    @Args('questionIdPk', { type: () => String }) questionIdPk: string,
     @Args('updateData') UpdateQuestionInput: UpdateQuestionInput,
   ): Promise<Question> {
-    return this.questionsService.updateQuestion(questionIdPk, UpdateQuestionInput)
+    try {
+      return this.questionsService.updateQuestion(questionIdPk, UpdateQuestionInput)
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  //id와 일치하는 문항 삭제
+  @Mutation(returns => Boolean)
+  async removeQuestion(@Args('questionIdPk') questionIdPk: string): Promise<boolean> {
+    try {
+      await this.questionsService.remove(questionIdPk);
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

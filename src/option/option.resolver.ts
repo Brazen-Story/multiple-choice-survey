@@ -8,43 +8,60 @@ import { UpdateOptionInput } from './dto/update-option.input';
 export class OptionResolver {
   constructor(private optionService: OptionService) { }
 
+  //옵션 만들기
   @Mutation(returns => Option)
   createOption(@Args('createOptionInput') createOptionInput: CreateOptionInput): Promise<Option> {
-    return this.optionService.createOption(createOptionInput);
+    try {
+      return this.optionService.createOption(createOptionInput);
+    } catch (error) {
+      throw error;
+    }
   }
 
+  //id 일치하는 옵션 엔티티 찾기
   @Query(returns => Option)
   getOption(
     @Args('optionIdPk') optionIdPk: string,
     @Args('questionIdFk') questionIdFk: string
   ): Promise<Option> {
-    return this.optionService.findone(optionIdPk, questionIdFk);
-  }
-
-  //모든 질문들 가져오기
-  @Query(returns => [Option])
-  Option(): Promise<Option[]> {
-    return this.optionService.findAll();
-  }
-
-  @Mutation(returns => Boolean)
-  async removeOption(
-    @Args('optionIdPk') optionIdPk: string
-  ): Promise<boolean> {
     try {
-      await this.optionService.remove(optionIdPk);
-      return true;
-    } catch (e) {
-      // 에러 핸들링 로직, 예를 들어 GraphQL 에러를 throw 할 수 있습니다.
-      throw new Error('선택지를 찾을 수 없습니다 !');
+      return this.optionService.findone(optionIdPk, questionIdFk);
+    } catch (error) {
+      throw error;
     }
   }
 
+  //모든 옵션 엔티티 찾기
+  @Query(returns => [Option])
+  Option(): Promise<Option[]> {
+    try {
+      return this.optionService.findAll();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //id 일치하는 옵션 엔티티 업데이트
   @Mutation(() => Option)
   async updateOption(
     @Args('optionIdPk', { type: () => String }) optionIdPk: string,
     @Args('updateData') UpdateOptionInput: UpdateOptionInput,
   ): Promise<Option> {
-    return this.optionService.updateOption(optionIdPk, UpdateOptionInput);
+    try {
+      return this.optionService.updateOption(optionIdPk, UpdateOptionInput);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //id일치하는 옵션 제거
+  @Mutation(returns => Boolean)
+  async removeOption(@Args('optionIdPk') optionIdPk: string): Promise<boolean> {
+    try {
+      await this.optionService.remove(optionIdPk);
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

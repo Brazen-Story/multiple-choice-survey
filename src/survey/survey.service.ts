@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSurveyInput } from './dto/create-survey.input';
 import { Question } from 'src/questions/entities/question.entity';
+import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { ERROR_CODES, ERROR_MESSAGES } from '../errors/errors.constants';
 
 @Injectable()
 export class SurveyService {
@@ -21,30 +23,59 @@ export class SurveyService {
   createSurvey(CreateSurveyInput: CreateSurveyInput): Promise<Survey> {
     const newSurvey = this.surveyRepository.create(CreateSurveyInput);
 
-    return this.surveyRepository.save(newSurvey);
+    try {
+      return this.surveyRepository.save(newSurvey);
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: ERROR_CODES.INVALID_INPUT,
+        message: ERROR_MESSAGES.INVALID_INPUT
+      });
+    }
   }
 
   //survey엔티티 찾기
   async findAll(): Promise<Survey[]> {
-    return this.surveyRepository.find();
+    try {
+      const survery = await this.surveyRepository.find();
+      return survery;
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.SURVEY_NOT_FOUND,
+        message: ERROR_MESSAGES.SURVEY_NOT_FOUND
+      });
+    }
   }
 
   //Id와 일치하는 엔티티 찾기
-  findone(surveyIdPk: string): Promise<Survey> {
-    return this.surveyRepository.findOneOrFail({ where: { surveyIdPk } });
+  async findone(surveyIdPk: string): Promise<Survey> {
+    try {
+      const survey = await this.surveyRepository.findOneOrFail({ where: { surveyIdPk } });
+      return survey;
+    } catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.SURVEY_NOT_FOUND,
+        message: ERROR_MESSAGES.SURVEY_NOT_FOUND
+      });
+    }
   }
 
   //완성된 설문지 확인
   async getCompletedSurveys(): Promise<Survey[]> {
-    const surveys = await this.surveyRepository.find({
-      where: { state: '완료' },
-      relations: ['questions', 'questions.options', 'questions.answers']
-    });
-
-    return surveys.map(survey => {
-      survey.totalScore = this.calculateSurveyTotalScore(survey);
-      return survey;
-    });
+    try {
+      const surveys = await this.surveyRepository.find({
+        where: { state: '완료' },
+        relations: ['questions', 'questions.options', 'questions.answers']
+      });
+      return surveys.map(survey => {
+        survey.totalScore = this.calculateSurveyTotalScore(survey);
+        return survey;
+      });
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: ERROR_CODES.GENERAL_ERROR,
+        message: ERROR_MESSAGES.GENERAL_ERROR
+      });
+    }
   }
 
   //totalScore 점수
@@ -61,43 +92,70 @@ export class SurveyService {
     return totalScore;
   }
 
-  //설문지 업데이트
+  // id와 일치하는 설문지 업데이트
   async updateSurvey(surveyIdPk: string, UpdateSurveyInput: Partial<Survey>): Promise<Survey> {
-    await this.surveyRepository.update(surveyIdPk, UpdateSurveyInput);
-    const updatedSurvey = await this.surveyRepository.findOne({ where: { surveyIdPk: surveyIdPk } });
-    if (!updatedSurvey) {
-      throw new Error('Survey not found');
+    try{
+      const updateResult = await this.surveyRepository.update(surveyIdPk, UpdateSurveyInput);
+      return this.findone(surveyIdPk);
+
+    }catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.SURVEY_NOT_FOUND,
+        message: ERROR_MESSAGES.SURVEY_NOT_FOUND
+      });
     }
-    return updatedSurvey;
   }
 
-  //설문지 제거
+  // id와 일치하는 설문지 제거
   async remove(surveyIdPk: string): Promise<void> {
-    const survey = await this.surveyRepository.findOne({ where: { surveyIdPk } });
-    if (survey) {
+    try{
+      const survey = await this.surveyRepository.findOne({ where: { surveyIdPk } });
       await this.surveyRepository.remove(survey);
-    } else {
-      throw new Error('선택지를 찾을 수 없습니다 !');
+    }catch (error) {
+      throw new NotFoundException({
+        error: ERROR_CODES.SURVEY_NOT_FOUND,
+        message: ERROR_MESSAGES.SURVEY_NOT_FOUND
+      });
     }
   }
 
   //설문지 완료 API
   async checkCompletionAndSetState(surveyIdPk: string): Promise<Survey> {
-    // 모든 질문에 대한 답변이 있는지 확인
-    const questions = await this.questionRepository.find({
-      where: { survey: { surveyIdPk: surveyIdPk } }, // 'surveyIdPk' 필드를 사용하여 필터링
-      relations: ['answers'],
-    });
+    let survey: Survey;
+    try {
+      //먼저 설문지가 있는지 확인
+      survey = await this.surveyRepository.findOne({ where: { surveyIdPk: surveyIdPk } });
+      if (!survey) {
+        throw new NotFoundException({
+          error: ERROR_CODES.SURVEY_NOT_FOUND,
+          message: ERROR_MESSAGES.SURVEY_NOT_FOUND
+        });
+      }
 
-    // 모든 질문에 답변이 있는지 여부를 확인
-    const isComplete = questions.every(question => question.answers.length > 0);
+      //질문에 대한 대답이 있는지 확인
+      const questions = await this.questionRepository.find({
+        where: { survey: { surveyIdPk: surveyIdPk } },
+        relations: ['answers'],
+      });
 
-    if (isComplete) {
-      // 모든 질문에 대한 답변이 있다면 설문조사의 상태를 '완성'으로 업데이트
-      await this.surveyRepository.update(surveyIdPk, { state: '완료' });
+      //모든 질문에 답변이 있는지 확인
+      const isComplete = questions.every(question => question.answers.length > 0);
+
+      //모든 질문에 대답이 있는지 설문조사 확인 후 완료로 업데이트
+      if (isComplete) {
+        await this.surveyRepository.update(surveyIdPk, { state: '완료' });
+      }
+
+      return survey;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException({
+        error: ERROR_CODES.GENERAL_ERROR,
+        message: ERROR_MESSAGES.GENERAL_ERROR
+      });
     }
-
-    // 업데이트된 설문조사를 반환
-    return this.surveyRepository.findOne({ where: { surveyIdPk: surveyIdPk } });
   }
+
 }
