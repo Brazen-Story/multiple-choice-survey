@@ -77,7 +77,7 @@ type Answer {
   question: Question!
 }
 ```
-## 🔗 Connent
+## 🔗 Connect
 
 - __Email : kimbong523@gmail.com__
   
