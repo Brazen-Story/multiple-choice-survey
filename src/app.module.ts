@@ -7,22 +7,31 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuestionsModule } from './questions/questions.module';
 import { AnswerModule } from './answer/answer.module';
 import { OptionModule } from './option/option.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [GraphQLModule.forRoot<ApolloDriverConfig>({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
     driver: ApolloDriver,
     autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     sortSchema: true,
   }),
-  TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: 'svc.sel5.cloudtype.app',
-    port: 32686,
-    username: 'root',
-    password: 'akdmadusrnth1004',
-    database: 'survey',
-    entities: ['dist/**/*.entity{.ts,.js}'],
-    synchronize: true,
+  TypeOrmModule.forRootAsync({
+    imports: [ConfigModule],
+    useFactory: (configService: ConfigService) => ({
+      type: 'postgres',
+      host: configService.get('DB_HOST'),
+      port: +configService.get<number>('DB_PORT'),
+      username: configService.get('DB_NAME'),
+      password: configService.get('DB_PW'),
+      database: configService.get('DB_DATABASE'),
+      entities: ['dist/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    inject: [ConfigService],
   }),
   SurveyModule,
   QuestionsModule,
