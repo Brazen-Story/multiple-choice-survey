@@ -1,7 +1,5 @@
 ## 💁‍♂️ 소개
-- 이 프로젝트는 __설문지 백엔드 미션__ 입니다. <br>
 - Nest.js에서 GraphQL 애플리케이션을 구축하는 방법으로 __code-first__ 방법을 선택했습니다.
-- 데이터베이스는 CloudType으로 배포되어 있으며 host, port, username, password, database 정보가 __의도적으로 오픈__ 되어 있습니다.<br>
 
 ## 🔧 설치
 ```bash
@@ -21,7 +19,7 @@ $ npm run start:dev
 ## 📊 ERD
 - 테이블 간의 관계는 __식별 관계__ 에 있습니다.<br>
 - SURVEY_TB 테이블의 STATE 컬럼은 DEFAULT로 '미완료'으로 지정되어 있습니다.<br><br>
-![image](https://github.com/Brazen-Story/multiple-choice-survey/assets/88796297/c3a3494f-0fb9-419a-a769-fb41086f51c9)
+![image](https://github.com/Brazen-Story/multiple-choice-survey/assets/88796297/4626818d-13d0-4a97-b762-48dd1df07cd6)
 
 ## 📝 API 기능
  - [설문지 CRUD](https://github.com/Brazen-Story/multiple-choice-survey/tree/master/src/survey)
@@ -77,7 +75,7 @@ type Answer {
   question: Question!
 }
 ```
-## 🔗 Connent
+## 🔗 Connect
 
 - __Email : kimbong523@gmail.com__
   
