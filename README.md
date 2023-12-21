@@ -1,7 +1,5 @@
 ## 💁‍♂️ 소개
-- 이 프로젝트는 __설문지 백엔드 미션__ 입니다. <br>
 - Nest.js에서 GraphQL 애플리케이션을 구축하는 방법으로 __code-first__ 방법을 선택했습니다.
-- 데이터베이스는 CloudType으로 배포되어 있으며 host, port, username, password, database 정보가 __의도적으로 오픈__ 되어 있습니다.<br>
 
 ## 🔧 설치
 ```bash
